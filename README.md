@@ -30,7 +30,7 @@ export fn @"test"() i32 {
     // NOTE: creating a group will reset the target plugin, before the group starts and after it's closed
     {
         const maintain_state_group = xtp_test.newGroup("plugin should maintain state");
-        errdefer maintain_state_group.close();
+        defer maintain_state_group.close();
         var accumTotal: u32 = 0;
         for (0..10) |_| {
             const loop_output = xtp_test.call("count_vowels", "this is a test") catch unreachable;
