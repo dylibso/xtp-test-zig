@@ -9,7 +9,11 @@ const CountVowel = struct {
 
 export fn @"test"() i32 {
     const xtp_test = Test.init(std.heap.wasm_allocator);
-    xtp_test.assert("this is a test", true);
+    xtp_test.assertEq("this is a test", true, true);
+    xtp_test.assertGt("gt test", 10, 1);
+    xtp_test.assertGte("gte test", 10.4, 10.4);
+    xtp_test.assertLt("lt test", 'Z', 'a');
+    xtp_test.assertLte("lte test", 0xfeeddada, 0xfeeddada);
     const output = xtp_test.call("count_vowels", "this is a test") catch unreachable;
     const cv = fromJson(output);
     xtp_test.assertEq("count_vowels returns expected count", cv.count, 4);
@@ -31,10 +35,10 @@ export fn @"test"() i32 {
     // create a group without a scope, and close it manually at the end of your tests
     const simple_group = xtp_test.newGroup("simple timing tests");
     const sec = xtp_test.timeSec("count_vowels", "this is a test");
-    xtp_test.assert("it should be fast", sec < 0.5);
+    xtp_test.assertLt("it should be fast", sec, 0.5);
 
     const ns = xtp_test.timeNs("count_vowels", "this is a test");
-    xtp_test.assert("it should be really fast", ns < 1e5);
+    xtp_test.assertLt("it should be really fast", ns, 1e5);
     simple_group.close();
 
     return 0;
