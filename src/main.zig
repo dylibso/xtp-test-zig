@@ -64,7 +64,7 @@ pub const Test = struct {
         self.assert(msg, x != y, reason);
     }
 
-    // Assert that `x` is greater than `y` are not equal, naming the assertion with `msg`, which will be used as a label in the CLI runner.
+    // Assert that `x` is greater than `y`, naming the assertion with `msg`, which will be used as a label in the CLI runner.
     pub fn assertGt(self: Test, msg: []const u8, x: anytype, y: anytype) void {
         const reason = std.fmt.allocPrint(self.plugin.allocator, "Expected {} > {}", .{ x, y }) catch FORMAT_FAILED;
         self.assert(msg, x > y, reason);
