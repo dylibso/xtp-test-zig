@@ -29,7 +29,6 @@ pub fn build(b: *std.Build) void {
     });
     basic_test.rdynamic = true;
     basic_test.entry = .disabled; // or, add an empty `pub fn main() void {}` in your code
-    // basic_test.root_module.addImport("extism-pdk", pdk_module);
     basic_test.root_module.addImport("xtp-test", xtp_test_module);
 
     b.installArtifact(basic_test);

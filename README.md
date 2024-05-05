@@ -15,19 +15,13 @@ const CountVowel = struct {
     vowels: []const u8,
 };
 
-// you _must_ export a single `test` function (in Zig, "test" is a keyword, so use this raw literal syntax)
 export fn @"test"() i32 {
-    // initialize your test to run functions in a target plugin
     const xtp_test = Test.init(std.heap.wasm_allocator);
-    xtp_test.assert("this is a test", true);
-
-    // run the "count_vowels" function in the target plugin and assert the output is as expected
     const output = xtp_test.call("count_vowels", "this is a test") catch unreachable;
     const cv = fromJson(output);
     xtp_test.assertEq("count_vowels returns expected count", cv.count, 4);
 
     // create a group of tests inside a new scope, use defer to close the group at the end of the scope
-    // NOTE: creating a group will reset the target plugin, before the group starts and after it's closed
     {
         const maintain_state_group = xtp_test.newGroup("plugin should maintain state");
         defer maintain_state_group.close();
@@ -43,13 +37,11 @@ export fn @"test"() i32 {
 
     // create a group without a scope, and close it manually at the end of your tests
     const simple_group = xtp_test.newGroup("simple timing tests");
-    // get the number of seconds elapsed in the "count_vowels" function using some input
     const sec = xtp_test.timeSec("count_vowels", "this is a test");
-    xtp_test.assert("it should be fast", sec < 0.5);
+    xtp_test.assertLt("it should be fast", sec, 0.5);
 
-    // get the number of nanoseconds elapsed in the "count_vowels" function using some input
     const ns = xtp_test.timeNs("count_vowels", "this is a test");
-    xtp_test.assert("it should be really fast", ns < 1e5);
+    xtp_test.assertLt("it should be really fast", ns, 1e5);
     simple_group.close();
 
     return 0;
@@ -93,7 +85,7 @@ const CountVowel = struct {
 export fn @"test"() i32 {
     // initialize your test to run functions in a target plugin
     const xtp_test = Test.init(std.heap.wasm_allocator);
-    xtp_test.assert("this is a test", true);
+    xtp_test.assert("this is a test", true, "Expect true == true");
 
     // run the "count_vowels" function in the target plugin and assert the output is as expected
     const output = xtp_test.call("count_vowels", "this is a test") catch unreachable;
@@ -127,9 +119,9 @@ curl https://static.dylibso.com/cli/install.sh | sudo sh
 ### Run the test suite
 
 ```sh
-xtp plugin test ./plugin-*.wasm --with test.wasm --host host.wasm
-#               ^^^^^^^^^^^^^^^        ^^^^^^^^^        ^^^^^^^^^
-#               your plugin(s)         test to run      optional mock host functions
+xtp plugin test ./plugin-*.wasm --with test.wasm --mock-host host.wasm
+#               ^^^^^^^^^^^^^^^        ^^^^^^^^^             ^^^^^^^^^
+#               your plugin(s)         test to run           optional mock host functions
 ```
 
 **Note:** The optional mock host functions must be implemented as Extism

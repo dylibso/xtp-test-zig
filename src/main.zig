@@ -4,6 +4,8 @@ const Plugin = pdk.Plugin;
 const Memory = pdk.Memory;
 const harness = @import("harness.zig");
 
+const FORMAT_FAILED = "-- test runner failed to format reason --";
+
 pub const Test = struct {
     plugin: Plugin,
 
@@ -16,10 +18,10 @@ pub const Test = struct {
         const func_mem = self.plugin.allocateBytes(func_name);
         const input_mem = self.plugin.allocateBytes(input);
         const output = harness.call(func_mem.offset, input_mem.offset);
-        errdefer func_mem.free();
-        errdefer input_mem.free();
+        defer func_mem.free();
+        defer input_mem.free();
         const output_mem = self.plugin.findMemory(output);
-        errdefer output_mem.free();
+        defer output_mem.free();
         const buf = try self.plugin.allocator.alloc(u8, @intCast(output_mem.length));
         errdefer self.plugin.allocator.free(buf);
         output_mem.load(buf);
@@ -31,8 +33,8 @@ pub const Test = struct {
         const func_mem = self.plugin.allocateBytes(func_name);
         const input_mem = self.plugin.allocateBytes(input);
         const ns = harness.time(func_mem.offset, input_mem.offset);
-        errdefer func_mem.free();
-        errdefer input_mem.free();
+        defer func_mem.free();
+        defer input_mem.free();
         return ns;
     }
 
@@ -42,20 +44,48 @@ pub const Test = struct {
     }
 
     // Assert that the `outcome` is true, naming the assertion with `msg`, which will be used as a label in the CLI runner.
-    pub fn assert(self: Test, msg: []const u8, outcome: bool) void {
+    pub fn assert(self: Test, msg: []const u8, outcome: bool, reason: []const u8) void {
         const msg_mem = self.plugin.allocateBytes(msg);
-        harness.assert(msg_mem.offset, @intFromBool(outcome));
+        const reason_mem = self.plugin.allocateBytes(reason);
+        harness.assert(msg_mem.offset, @intFromBool(outcome), reason_mem.offset);
         msg_mem.free();
+        reason_mem.free();
     }
 
     // Assert that `x` and `y` are equal, naming the assertion with `msg`, which will be used as a label in the CLI runner.
     pub fn assertEq(self: Test, msg: []const u8, x: anytype, y: anytype) void {
-        self.assert(msg, x == y);
+        const reason = std.fmt.allocPrint(self.plugin.allocator, "Expected {} == {}", .{ x, y }) catch FORMAT_FAILED;
+        self.assert(msg, x == y, reason);
     }
 
     // Assert that `x` and `y` are not equal, naming the assertion with `msg`, which will be used as a label in the CLI runner.
     pub fn assertNe(self: Test, msg: []const u8, x: anytype, y: anytype) void {
-        self.assert(msg, x != y);
+        const reason = std.fmt.allocPrint(self.plugin.allocator, "Expected {} != {}", .{ x, y }) catch FORMAT_FAILED;
+        self.assert(msg, x != y, reason);
+    }
+
+    // Assert that `x` is greater than `y`, naming the assertion with `msg`, which will be used as a label in the CLI runner.
+    pub fn assertGt(self: Test, msg: []const u8, x: anytype, y: anytype) void {
+        const reason = std.fmt.allocPrint(self.plugin.allocator, "Expected {} > {}", .{ x, y }) catch FORMAT_FAILED;
+        self.assert(msg, x > y, reason);
+    }
+
+    // Assert that `x` is greater than or equal to `y`, naming the assertion with `msg`, which will be used as a label in the CLI runner.
+    pub fn assertGte(self: Test, msg: []const u8, x: anytype, y: anytype) void {
+        const reason = std.fmt.allocPrint(self.plugin.allocator, "Expected {} >= {}", .{ x, y }) catch FORMAT_FAILED;
+        self.assert(msg, x >= y, reason);
+    }
+
+    // Assert that `x` is less than `y`, naming the assertion with `msg`, which will be used as a label in the CLI runner.
+    pub fn assertLt(self: Test, msg: []const u8, x: anytype, y: anytype) void {
+        const reason = std.fmt.allocPrint(self.plugin.allocator, "Expected {} < {}", .{ x, y }) catch FORMAT_FAILED;
+        self.assert(msg, x < y, reason);
+    }
+
+    // Assert that `x` is less than or equal to `y`, naming the assertion with `msg`, which will be used as a label in the CLI runner.
+    pub fn assertLte(self: Test, msg: []const u8, x: anytype, y: anytype) void {
+        const reason = std.fmt.allocPrint(self.plugin.allocator, "Expected {} <= {}", .{ x, y }) catch FORMAT_FAILED;
+        self.assert(msg, x <= y, reason);
     }
 
     // Create a new test group. NOTE: these cannot be nested and starting a new group will end the last one
