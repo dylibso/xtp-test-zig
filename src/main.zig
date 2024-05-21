@@ -17,7 +17,7 @@ pub const Test = struct {
     pub fn mockInput(self: Test) ![]const u8 {
         const offs = harness.mock_input();
         if (offs == 0) {
-            return null;
+            return error.NoMockInput;
         }
         const mem = self.plugin.findMemory(offs);
         defer mem.free();
