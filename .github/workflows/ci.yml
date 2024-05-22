@@ -9,8 +9,6 @@ jobs:
         
       - name: Setup Zig env
         uses: goto-bus-stop/setup-zig@v2
-        with: 
-            version: "master"
 
       - name: Check Zig version
         run: zig version
@@ -22,5 +20,7 @@ jobs:
         run: zig build
 
       - name: Test example
-        run: xtp plugin test https://raw.githubusercontent.com/extism/extism/main/wasm/code.wasm --with zig-out/bin/basic-test.wasm
+        run: |
+          # this is configured by the `xtp.toml` in the root
+          xtp plugin test
       

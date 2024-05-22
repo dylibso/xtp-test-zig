@@ -17,13 +17,13 @@ pub fn build(b: *std.Build) void {
 
     const pdk_module = b.dependency("extism-pdk", .{ .target = target, .optimize = optimize }).module("extism-pdk");
     const xtp_test_module = b.addModule("xtp-test", .{
-        .root_source_file = .{ .path = "src/main.zig" },
+        .root_source_file = b.path("src/main.zig"),
     });
     xtp_test_module.addImport("extism-pdk", pdk_module);
 
     var basic_test = b.addExecutable(.{
         .name = "basic-test",
-        .root_source_file = .{ .path = "examples/basic.zig" },
+        .root_source_file = b.path("examples/basic.zig"),
         .target = target,
         .optimize = optimize,
     });

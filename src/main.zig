@@ -13,6 +13,22 @@ pub const Test = struct {
         return Test{ .plugin = Plugin.init(allocator) };
     }
 
+    // Retreive mock input, if configured
+    pub fn mockInput(self: Test) ?[]const u8 {
+        const offs = harness.mock_input();
+        if (offs == 0) {
+            return null;
+        }
+        const mem = self.plugin.findMemory(offs);
+        defer mem.free();
+        if (self.plugin.allocator.alloc(u8, @intCast(mem.length))) |buf| {
+            mem.load(buf);
+            return buf;
+        } else |_err| switch (_err) {
+            else => return null,
+        }
+    }
+
     // Call a function from the Extism plugin being tested, passing input and returning its output.
     pub fn call(self: Test, func_name: []const u8, input: []const u8) ![]const u8 {
         const func_mem = self.plugin.allocateBytes(func_name);

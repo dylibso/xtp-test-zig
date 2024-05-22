@@ -9,6 +9,8 @@ const CountVowel = struct {
 
 export fn @"test"() i32 {
     const xtp_test = Test.init(std.heap.wasm_allocator);
+    const notEmpty = xtp_test.call("count_vowels", xtp_test.mockInput() orelse "") catch unreachable;
+    xtp_test.assert("with mock, not empty", !std.mem.eql(u8, notEmpty, ""), "expected non-empty string");
     xtp_test.assertEq("this is a test", true, true);
     xtp_test.assertGt("gt test", 10, 1);
     xtp_test.assertGte("gte test", 10.4, 10.4);
