@@ -44,13 +44,15 @@ pub const Test = struct {
         }
     }
 
-    pub fn mockInputJson(self: Test, comptime T: type, options: ?std.json.ParseOptions) !T {
+    // Parse mock input as JSON, returning a Json(T) struct.
+    // NOTE: it is the caller's responsibility to .deinit() the Json(T) struct when done with it.
+    pub fn mockInputJson(self: Test, comptime T: type, options: ?std.json.ParseOptions) !Json(T) {
         const default_opts = .{ .allocate = .alloc_always, .ignore_unknown_fields = true };
         const bytes = self.mockInput() orelse return error.NoMockInput;
         const out = try std.json.parseFromSlice(T, self.plugin.allocator, bytes, options orelse default_opts);
         const FromJson = Json(T);
         const input = FromJson{ .parsed = out, .slice = bytes };
-        return input.parsed.value;
+        return input;
     }
 
     // Call a function from the Extism plugin being tested, passing input and returning its output.
