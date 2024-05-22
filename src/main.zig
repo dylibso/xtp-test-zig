@@ -6,6 +6,21 @@ const harness = @import("harness.zig");
 
 const FORMAT_FAILED = "-- test runner failed to format reason --";
 
+pub fn Json(comptime T: type) type {
+    return struct {
+        parsed: std.json.Parsed(T),
+        slice: []const u8,
+
+        pub fn value(self: @This()) T {
+            return self.parsed.value;
+        }
+
+        pub fn deinit(self: @This()) void {
+            self.parsed.deinit();
+        }
+    };
+}
+
 pub const Test = struct {
     plugin: Plugin,
 
@@ -27,6 +42,15 @@ pub const Test = struct {
         } else |_err| switch (_err) {
             else => return null,
         }
+    }
+
+    pub fn mockInputJson(self: Test, comptime T: type, options: ?std.json.ParseOptions) !T {
+        const default_opts = .{ .allocate = .alloc_always, .ignore_unknown_fields = true };
+        const bytes = self.mockInput() orelse return error.NoMockInput;
+        const out = try std.json.parseFromSlice(T, self.plugin.allocator, bytes, options orelse default_opts);
+        const FromJson = Json(T);
+        const input = FromJson{ .parsed = out, .slice = bytes };
+        return input.parsed.value;
     }
 
     // Call a function from the Extism plugin being tested, passing input and returning its output.

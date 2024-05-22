@@ -22,5 +22,6 @@ jobs:
       - name: Test example
         run: |
           # this is configured by the `xtp.toml` in the root
-          xtp plugin test
+          xtp plugin test --path examples/basic
+          xtp plugin test --path examples/json
       
