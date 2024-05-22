@@ -65,7 +65,7 @@ See the [`main.zig`](/src/main.zig) file for the public API of this library.
 mkdir zig-xtp-test
 cd zig-xtp-test
 zig init
-zig fetch --save https://github.com/dylibso/xtp-test-zig/archive/v0.0.2.tar.gz
+zig fetch --save https://github.com/dylibso/xtp-test-zig/archive/v0.0.3.tar.gz
 # see the `build.zig` in this repo for examples on how to configure it
 ```
 
