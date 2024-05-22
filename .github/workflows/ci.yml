@@ -19,9 +19,13 @@ jobs:
       - name: Build example
         run: zig build
 
-      - name: Test example
+      - name: Test basic example
         run: |
-          # this is configured by the `xtp.toml` in the root
+          # this is configured by `examples/basic/xtp.toml`
           xtp plugin test --path examples/basic
+
+      - name: Test json example
+        run: |
+          # this is configured by `examples/json/xtp.toml`
           xtp plugin test --path examples/json
       
