@@ -1,0 +1,7 @@
+bin = "https://raw.githubusercontent.com/extism/extism/main/wasm/code.wasm"
+
+[[test]]
+name = "json"
+build = "zig build json_test"
+with = "zig-out/bin/json-test.wasm"
+mock_input = { data = '{ "count": 1, "total": 2, "vowels": "aeiouAEIOU" }' }

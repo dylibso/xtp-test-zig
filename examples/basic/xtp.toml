@@ -10,4 +10,4 @@ mock_input = { data = "this is my mock input data" }
 name = "basic - file input"
 build = "zig build basic_test"
 with = "zig-out/bin/basic-test.wasm"
-mock_input = { file = "examples/basic.zig" }
+mock_input = { file = "examples/basic/basic.zig" }

@@ -23,15 +23,27 @@ pub fn build(b: *std.Build) void {
 
     var basic_test = b.addExecutable(.{
         .name = "basic-test",
-        .root_source_file = b.path("examples/basic.zig"),
+        .root_source_file = b.path("examples/basic/basic.zig"),
         .target = target,
         .optimize = optimize,
     });
     basic_test.rdynamic = true;
     basic_test.entry = .disabled; // or, add an empty `pub fn main() void {}` in your code
     basic_test.root_module.addImport("xtp-test", xtp_test_module);
-
     b.installArtifact(basic_test);
     const basic_test_step = b.step("basic_test", "Build basic_test");
     basic_test_step.dependOn(b.getInstallStep());
+
+    var json_test = b.addExecutable(.{
+        .name = "json-test",
+        .root_source_file = b.path("examples/json/json.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+    json_test.rdynamic = true;
+    json_test.entry = .disabled; // or, add an empty `pub fn main() void {}` in your code
+    json_test.root_module.addImport("xtp-test", xtp_test_module);
+    b.installArtifact(json_test);
+    const json_test_step = b.step("json_test", "Build json_test");
+    json_test_step.dependOn(b.getInstallStep());
 }

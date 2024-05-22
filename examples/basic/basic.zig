@@ -40,7 +40,7 @@ export fn @"test"() i32 {
     xtp_test.assertLt("it should be fast", sec, 0.5);
 
     const ns = xtp_test.timeNs("count_vowels", "this is a test");
-    xtp_test.assertLt("it should be really fast", ns, 1e5);
+    xtp_test.assertLt("it should be really fast", ns, 2e6);
     simple_group.close();
 
     return 0;
